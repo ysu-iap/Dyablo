@@ -14,7 +14,7 @@ class InitialConditions_restart;
 class InitialConditions_tiled_restart;
 
 // Hydrodynamics
-class AnalyticalFormula_blast;
+template<typename State> class AnalyticalFormula_blast;
 class AnalyticalFormula_implode;
 class AnalyticalFormula_riemann2d;
 class AnalyticalFormula_KelvinHelmholtz;
@@ -57,7 +57,8 @@ bool dyablo::InitialConditionsFactory::init()
   DECLARE_REGISTERED( dyablo::InitialConditions_simple_particles );
   DECLARE_REGISTERED( dyablo::InitialConditions_particle_grid );
   
-  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_blast> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_blast<dyablo::HydroState>> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_blast<dyablo::HydroMCState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_implode> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_riemann2d> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz> );

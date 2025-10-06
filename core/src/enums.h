@@ -114,3 +114,8 @@ inline named_enum<RadType>::init_list named_enum<RadType>::names()
     {RadType::STROMGREN, "stromgren"}
   };
 }
+
+enum FlowDirection {
+  LEFT,
+  RIGHT
+};

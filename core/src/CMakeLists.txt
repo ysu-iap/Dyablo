@@ -9,6 +9,7 @@ set( core_src
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/HydroUpdate_euler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/HydroUpdate_euler_nopatch.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/HydroUpdate_hancock.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/HydroUpdate_hancock_MC.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/HydroUpdate_RK2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/GLMMHDUpdate_euler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/hyperbolic/GLMMHDUpdate_hancock.cpp

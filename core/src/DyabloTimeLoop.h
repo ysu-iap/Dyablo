@@ -139,7 +139,7 @@ public:
   bool stop_criterion( const ScalarSimulationData& scalar_data )
   {
     int iter = scalar_data.get<int>("iter");
-    real_t time = scalar_data.get<real_t>(t_end_var); // time may not be time, can be some other variable user for end
+    real_t time = scalar_data.get<real_t>(t_end_var); // time may not be time, can be some other variable used for end
 
     bool stop_iter = iter_end > 0 && iter >= iter_end;
     bool stop_time = use_t_end    && time >= t_end - t_end_epsilon;
@@ -660,8 +660,7 @@ public:
       auto Uexchange = U.getAccessor(field_info);
       ghost_comm.exchange_ghosts( Uexchange );
     };
-    
-    
+
     if (m_gravity_type & GRAVITY_FIELD) {
       if( !U.has_field("gx") )
         U.new_fields({"gx", "gy", "gz"});
@@ -671,6 +670,10 @@ public:
 
     //U.exchange_ghosts( ghost_comm );
     std::vector<std::string> fields_to_exchange{"rho","e_tot","rho_vx","rho_vy","rho_vz"};
+    if (U.has_field("flux_x_l")){
+      fields_to_exchange.insert(fields_to_exchange.end(),
+                              {"flux_x_l", "flux_x_r", "flux_y_l", "flux_y_r", "flux_z_l", "flux_z_r"});
+    }
     if( this->has_mhd )
     {
       fields_to_exchange.push_back("Bx");
@@ -726,11 +729,20 @@ public:
       particle_position_updater->update( U, m_scalar_data );
       U.distributeParticles("particles");
     }
-
+    
     // Update hydro
     if( godunov_updater )
     {
-      U.new_fields({"rho_next", "e_tot_next", "rho_vx_next", "rho_vy_next", "rho_vz_next"});    
+      U.new_fields({"rho_next", "e_tot_next", "rho_vx_next", "rho_vy_next", "rho_vz_next"});
+      if (U.has_field("flux_x_l")){
+        U.delete_field("flux_x_l");
+        U.delete_field("flux_x_r");
+        U.delete_field("flux_y_l");
+        U.delete_field("flux_y_r");
+        U.delete_field("flux_z_l");
+        U.delete_field("flux_z_r");
+        U.new_fields({"flux_x_l", "flux_x_r", "flux_y_l", "flux_y_r", "flux_z_l", "flux_z_r"});
+      }   
       // TODO automatic new fields according to kernel
       if( this->has_mhd ) {
         U.new_fields({"Bx_next", "By_next", "Bz_next"});
@@ -762,6 +774,7 @@ public:
       U.move_field( "rho_vx", "rho_vx_next" ); 
       U.move_field( "rho_vy", "rho_vy_next" ); 
       U.move_field( "rho_vz", "rho_vz_next" );
+
       if( this->has_mhd )
       {
         U.move_field( "Bx", "Bx_next" ); 
@@ -778,8 +791,6 @@ public:
         U.move_field( "fz_rad", "fz_rad_next" );
       }
     }
-
-     
 
     m_iteration_handler->next_iter(m_scalar_data);
     
@@ -841,7 +852,7 @@ public:
         U.distributeAllParticles();
 
         timers.get("AMR: load-balance").stop();
-      }
+      } 
     }    
   }
 

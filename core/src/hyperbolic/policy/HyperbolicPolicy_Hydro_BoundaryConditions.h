@@ -2,10 +2,11 @@
 
 namespace dyablo{
 
-class HyperbolicPolicy_BoundaryConditions_Hydro_Default
+template <typename StateType>
+class HyperbolicPolicy_BoundaryConditions_Hydro
 {
 private:
-  using HyperbolicPolicy_State = HyperbolicPolicy_State_Hydro;
+  using HyperbolicPolicy_State = StateType;
   using CellIndex     = ForeachCell::CellIndex;
   using CellMetaData  = ForeachCell::CellMetaData;
   using offset_t      = CellIndex::offset_t;
@@ -39,7 +40,7 @@ public:
     };
   }
 
-  HyperbolicPolicy_BoundaryConditions_Hydro_Default( const Params& params, const ScalarSimulationData& )
+  HyperbolicPolicy_BoundaryConditions_Hydro( const Params& params, const ScalarSimulationData& )
   : bc_min(params.bc_min),
     bc_max(params.bc_max)
   {}
@@ -144,10 +145,11 @@ public:
   }
 };
 
-class HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach
+template <typename StateType>
+class HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach_Template
 {
 private:
-  using HyperbolicPolicy_State = HyperbolicPolicy_State_Hydro;
+  using HyperbolicPolicy_State = StateType;
   using CellIndex     = ForeachCell::CellIndex;
   using CellMetaData  = ForeachCell::CellMetaData;
   using offset_t      = CellIndex::offset_t;
@@ -185,7 +187,7 @@ public:
     };
   }
 
-  HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach( const Params& params, const ScalarSimulationData& simulation_data )
+  HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach_Template( const Params& params, const ScalarSimulationData& simulation_data )
   : rparams( params ),
     sim_time( simulation_data.get<real_t>("time") )
   {}

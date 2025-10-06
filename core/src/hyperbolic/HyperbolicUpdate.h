@@ -11,6 +11,7 @@ class HydroUpdate_euler;
 class HydroUpdate_euler_nopatch;
 class HydroUpdate_RK2;
 class HydroUpdate_hancock;
+class HydroUpdate_hancock_MC;
 class HydroUpdate_gravity;
 
 class GLMMHDUpdate_euler;
@@ -30,6 +31,7 @@ inline bool dyablo::HyperbolicUpdateFactory::init()
   DECLARE_REGISTERED(dyablo::HydroUpdate_RK2);
   DECLARE_REGISTERED(dyablo::HydroUpdate_euler_nopatch);
   DECLARE_REGISTERED(dyablo::HydroUpdate_hancock);
+  DECLARE_REGISTERED(dyablo::HydroUpdate_hancock_MC);
   DECLARE_REGISTERED(dyablo::HydroUpdate_gravity);  
   DECLARE_REGISTERED(dyablo::GLMMHDUpdate_euler);
   DECLARE_REGISTERED(dyablo::GLMMHDUpdate_RK2);

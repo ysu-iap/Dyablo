@@ -175,10 +175,19 @@ public:
    * @param policy_scalar_data PolicyScalarData object for the passage of scalar information  
    * @return output flux
    */
+  // KOKKOS_INLINE_FUNCTION
+  // ConsState riemann_solver( PrimState qL, PrimState qR, ComponentIndex3D dir) const
+  // {
+  //   return impl.riemann_solver(qL, qR, dir);
+  // }
+
+  template<class... Extra>
   KOKKOS_INLINE_FUNCTION
-  ConsState riemann_solver( PrimState qL, PrimState qR, ComponentIndex3D dir) const
+  ConsState riemann_solver(PrimState qL, PrimState qR,
+                          ComponentIndex3D dir,
+                          Extra&&... extra) const
   {
-    return impl.riemann_solver(qL, qR, dir);
+    return impl.riemann_solver(qL, qR, dir, std::forward<Extra>(extra)...);
   }
 
   

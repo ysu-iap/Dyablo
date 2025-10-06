@@ -407,6 +407,9 @@ private:
 
 namespace dyablo {
 
+using HyperbolicPolicy_BoundaryConditions_Hydro_Default = HyperbolicPolicy_BoundaryConditions_Hydro<HyperbolicPolicy_State_Hydro>;
+using HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach = HyperbolicPolicy_BoundaryConditions_Hydro_DoubleMach_Template<HyperbolicPolicy_State_Hydro>;
+
 using HyperbolicPolicy_BoundaryConditions_Hydro_dynamic = HyperbolicPolicy_BoundaryConditions_dynamic<
     HyperbolicPolicy_State_Hydro,
     HyperbolicPolicy_BoundaryConditions_Hydro_Default,
