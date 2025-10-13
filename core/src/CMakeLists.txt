@@ -28,6 +28,7 @@ set( core_src
     ${CMAKE_CURRENT_SOURCE_DIR}/refine_condition/RefineCondition_mass.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/refine_condition/RefineCondition_downflows.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/particles/ParticleUpdate_tracers_move.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/particles/ParticleUpdate_tracers_move_MC.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/particles/ParticleUpdate_NGP_move.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/particles/ParticleUpdate_NGP_density.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/particles/ParticleUpdate_CIC_move.cpp

@@ -537,6 +537,7 @@ public:
     // NOTE : scancel sends SIGTERM by default, you can use 'scancel -s INT'
     signal( SIGINT, interrupt_handler );
     bool finished = false;
+
     while( !finished )
     {
       step();      
@@ -672,7 +673,7 @@ public:
     std::vector<std::string> fields_to_exchange{"rho","e_tot","rho_vx","rho_vy","rho_vz"};
     if (U.has_field("flux_x_l")){
       fields_to_exchange.insert(fields_to_exchange.end(),
-                              {"flux_x_l", "flux_x_r", "flux_y_l", "flux_y_r", "flux_z_l", "flux_z_r"});
+                              {"rho_old", "flux_x_l", "flux_x_r", "flux_y_l", "flux_y_r", "flux_z_l", "flux_z_r"});
     }
     if( this->has_mhd )
     {
@@ -769,6 +770,7 @@ public:
       for (auto &source_updater : source_updaters)
         source_updater->update( U, m_scalar_data );
 
+      U.move_field( "rho_old", "rho");
       U.move_field( "rho", "rho_next" ); 
       U.move_field( "e_tot", "e_tot_next" ); 
       U.move_field( "rho_vx", "rho_vx_next" ); 

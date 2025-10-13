@@ -522,7 +522,7 @@ R"xml(<?xml version="1.0" ?>
   <Domain>
     <Grid Name="%s" GridType="Uniform">
       <Time TimeType="Single" Value="%g" />
-      <Topology TopologyType="Polyvertex" NumberOfElements="%lu" />
+      <Topology TopologyType="PolyVertex" NumberOfElements="%lu" />
       <Geometry GeometryType="XYZ">
         <DataItem Dimensions="%lu 3" NumberType="Float" Precision="%d" Format="HDF">
           %s.h5:/coordinates

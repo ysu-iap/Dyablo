@@ -79,13 +79,13 @@ struct HyperbolicPolicy_PrimHydroMCState {
     Iflux_y_r,
     Iflux_z_l,
     Iflux_z_r,
-    Irho_old,
+    Irho_old
   };
 
   static FieldManager getFieldManager()
   {
     return FieldManager( {VarIndex::Irho, VarIndex::Ip, VarIndex::Iu, VarIndex::Iv, VarIndex::Iw, 
-                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r, VarIndex::Irho_old } );
+                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r, VarIndex::Irho_old} );
   }
 
   real_t rho = 0;
@@ -99,7 +99,7 @@ struct HyperbolicPolicy_PrimHydroMCState {
   real_t flux_y_r = 0;
   real_t flux_z_l = 0;
   real_t flux_z_r = 0;
-  real_t rho_old = 0;
+  real_t rho_old  = 0;
 };
 
 DECLARE_STATE_TYPE( HyperbolicPolicy_PrimHydroMCState, 12 );
@@ -171,7 +171,7 @@ public:
       {"flux_y_r", ConsVarIndex::Iflux_y_r},
       {"flux_z_l", ConsVarIndex::Iflux_z_l},
       {"flux_z_r", ConsVarIndex::Iflux_z_r},
-      {"rho",      ConsVarIndex::Irho_old}, 
+      {"rho_old",  ConsVarIndex::Irho_old},
     };
 
     return U.getAccessor( Uin_fieldinfo );
@@ -191,7 +191,7 @@ public:
       {"flux_y_r",     ConsVarIndex::Iflux_y_r},
       {"flux_z_l",     ConsVarIndex::Iflux_z_l},
       {"flux_z_r",     ConsVarIndex::Iflux_z_r},
-      {"rho",          ConsVarIndex::Irho_old},
+      {"rho_old",      ConsVarIndex::Irho_old},
     };
     return U.getAccessor( Uout_fieldinfo );
   }
@@ -202,7 +202,7 @@ public:
   {
     ConsState u;
     u.rho   = U.at(iCell, ConsState::VarIndex::Irho );
-    u.rho_old   = U.at(iCell, ConsState::VarIndex::Irho_old );
+    u.rho_old  = U.at(iCell, ConsState::VarIndex::Irho_old );
     u.e_tot = U.at(iCell, ConsState::VarIndex::Ie_tot );
     u.rho_u = U.at(iCell, ConsState::VarIndex::Irho_vx );
     u.rho_v = U.at(iCell, ConsState::VarIndex::Irho_vy );
@@ -222,6 +222,7 @@ public:
   void setConsState( const Array_t& U, const CellIndex& iCell, const ConsState& u ) const
   {
     U.at(iCell, ConsState::VarIndex::Irho) = u.rho;
+    U.at(iCell, ConsState::VarIndex::Irho_old) = u.rho_old;
     U.at(iCell, ConsState::VarIndex::Ie_tot) = u.e_tot;
     U.at(iCell, ConsState::VarIndex::Irho_vx) = u.rho_u;
     U.at(iCell, ConsState::VarIndex::Irho_vy) = u.rho_v;
@@ -230,7 +231,6 @@ public:
     U.at(iCell, ConsState::VarIndex::Iflux_x_r) = u.flux_x_r;
     U.at(iCell, ConsState::VarIndex::Iflux_y_l) = u.flux_y_l;
     U.at(iCell, ConsState::VarIndex::Iflux_y_r) = u.flux_y_r;
-    U.at(iCell, ConsState::VarIndex::Irho_old) = u.rho_old;
 
     if (ndim == 3){
       U.at(iCell, ConsState::VarIndex::Irho_vz) = u.rho_w;
@@ -245,7 +245,7 @@ public:
   {
     Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Irho), u.rho);
     Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Irho_old), u.rho_old);
-    Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Ie_tot), u.e_tot);
+    Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Ie_tot),  u.e_tot);
     Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Irho_vx), u.rho_u);
     Kokkos::atomic_add(&U.at(iCell, ConsState::VarIndex::Irho_vy), u.rho_v);
 
@@ -342,7 +342,7 @@ public:
             Q.flux_y_r,
             (ndim == 3 ? Q.flux_z_l : 0.0),
             (ndim == 3 ? Q.flux_z_r : 0.0),
-            Q.rho_old };
+            Q.rho_old};
   }
 };
 

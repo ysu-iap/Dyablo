@@ -25,7 +25,8 @@ struct ConsHydroMCState {
     Iflux_y_l,
     Iflux_y_r,
     Iflux_z_l,
-    Iflux_z_r
+    Iflux_z_r,
+    Irho_old
   };  
   
   static std::vector<UserData::FieldAccessor::FieldInfo> getFieldsInfo()
@@ -40,13 +41,14 @@ struct ConsHydroMCState {
               {"flux_y_l", VarIndex::Iflux_y_l},
               {"flux_y_r", VarIndex::Iflux_y_r},
               {"flux_z_l", VarIndex::Iflux_z_l},
-              {"flux_z_r", VarIndex::Iflux_z_r} };
+              {"flux_z_r", VarIndex::Iflux_z_r},
+              {"rho_old",  VarIndex::Irho_old}, };
   }
 
   static FieldManager getFieldManager()
   {
     return FieldManager( {VarIndex::Irho, VarIndex::Ie_tot, VarIndex::Irho_vx, VarIndex::Irho_vy, VarIndex::Irho_vz, 
-                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r } );
+                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r, VarIndex::Irho_old } );
   }
 
   real_t rho = 0;
@@ -61,9 +63,10 @@ struct ConsHydroMCState {
   real_t flux_y_r = 0;
   real_t flux_z_l = 0;
   real_t flux_z_r = 0;
+  real_t rho_old = 0;
 };
 
-DECLARE_STATE_TYPE( ConsHydroMCState, 11 );
+DECLARE_STATE_TYPE( ConsHydroMCState, 12 );
 DECLARE_STATE_GET( ConsHydroMCState, 0, rho );
 DECLARE_STATE_GET( ConsHydroMCState, 1, e_tot );
 DECLARE_STATE_GET( ConsHydroMCState, 2, rho_u );
@@ -75,6 +78,8 @@ DECLARE_STATE_GET( ConsHydroMCState, 7, flux_y_l );
 DECLARE_STATE_GET( ConsHydroMCState, 8, flux_y_r );
 DECLARE_STATE_GET( ConsHydroMCState, 9, flux_z_l );
 DECLARE_STATE_GET( ConsHydroMCState, 10, flux_z_r );
+DECLARE_STATE_GET( ConsHydroMCState, 11, rho_old );
+
 
 /**
  * @brief Structure holding primitive hydrodynamics variables
@@ -93,6 +98,7 @@ struct PrimHydroMCState {
     Iflux_y_r,
     Iflux_z_l,
     Iflux_z_r,
+    Irho_old,
   };  
   
   static std::vector<UserData::FieldAccessor::FieldInfo> getFieldsInfo()
@@ -107,13 +113,14 @@ struct PrimHydroMCState {
               {"flux_y_l", VarIndex::Iflux_y_l},
               {"flux_y_r", VarIndex::Iflux_y_l},
               {"flux_z_l", VarIndex::Iflux_z_l},
-              {"flux_z_r", VarIndex::Iflux_z_l} };
+              {"flux_z_r", VarIndex::Iflux_z_l},
+              {"rho_old",  VarIndex::Irho_old} };
   }
 
   static FieldManager getFieldManager()
   {
     return FieldManager( {VarIndex::Irho, VarIndex::Ip, VarIndex::Iu, VarIndex::Iv, VarIndex::Iw, 
-                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r } );
+                          VarIndex::Iflux_x_l, VarIndex::Iflux_x_r, VarIndex::Iflux_y_l, VarIndex::Iflux_y_r, VarIndex::Iflux_z_l, VarIndex::Iflux_z_r, VarIndex::Irho_old } );
   }
 
   real_t rho = 0;
@@ -128,9 +135,10 @@ struct PrimHydroMCState {
   real_t flux_y_r = 0;
   real_t flux_z_l = 0;
   real_t flux_z_r = 0;
+  real_t rho_old = 0;
 };
 
-DECLARE_STATE_TYPE( PrimHydroMCState, 11 );
+DECLARE_STATE_TYPE( PrimHydroMCState, 12 );
 DECLARE_STATE_GET( PrimHydroMCState, 0, rho );
 DECLARE_STATE_GET( PrimHydroMCState, 1, p );
 DECLARE_STATE_GET( PrimHydroMCState, 2, u );
@@ -143,6 +151,7 @@ DECLARE_STATE_GET( PrimHydroMCState, 7, flux_y_l );
 DECLARE_STATE_GET( PrimHydroMCState, 8, flux_y_r );
 DECLARE_STATE_GET( PrimHydroMCState, 9, flux_z_l );
 DECLARE_STATE_GET( PrimHydroMCState, 10, flux_z_r );
+DECLARE_STATE_GET( PrimHydroMCState, 11, rho_old );
 
 /**
  * @brief Structure grouping the primitive and conservative hydro state as well
@@ -151,7 +160,7 @@ DECLARE_STATE_GET( PrimHydroMCState, 10, flux_z_r );
 struct HydroMCState {
   using PrimState = PrimHydroMCState;
   using ConsState = ConsHydroMCState;
-  static constexpr size_t N = 11;
+  static constexpr size_t N = 12;
 };
 
 /**
@@ -183,6 +192,7 @@ void getConservativeState(const Array_t& U, const CellIndex& iCell, ConsHydroMCS
   res.flux_y_r = U.at(iCell, ConsHydroMCState::VarIndex::Iflux_y_r);
   res.flux_z_l = (ndim == 3 ? U.at(iCell, ConsHydroMCState::VarIndex::Iflux_z_l ) : 0.0);
   res.flux_z_r = (ndim == 3 ? U.at(iCell, ConsHydroMCState::VarIndex::Iflux_z_r ) : 0.0);
+  res.rho_old  = U.at(iCell, ConsHydroMCState::VarIndex::Irho_old );
 }
 
 /**
@@ -214,6 +224,7 @@ void getPrimitiveState(const Array_t& U, const CellIndex& iCell, PrimHydroMCStat
   res.flux_y_r = U.at(iCell, ConsHydroMCState::VarIndex::Iflux_y_r);
   res.flux_z_l = (ndim == 3 ? U.at(iCell, ConsHydroMCState::VarIndex::Iflux_z_l ) : 0.0);
   res.flux_z_r = (ndim == 3 ? U.at(iCell, ConsHydroMCState::VarIndex::Iflux_z_r ) : 0.0);
+  res.rho_old  = U.at(iCell, PrimHydroMCState::VarIndex::Irho_old );
 }
 
 /**
@@ -231,6 +242,7 @@ template <int ndim, typename Array_t, typename CellIndex >
 KOKKOS_INLINE_FUNCTION
 void setPrimitiveState( const Array_t& U, const CellIndex& iCell, PrimHydroMCState u) {
   U.at(iCell, PrimHydroMCState::VarIndex::Irho) = u.rho;
+  U.at(iCell, PrimHydroMCState::VarIndex::Irho_old) = u.rho_old;
   U.at(iCell, PrimHydroMCState::VarIndex::Ip) = u.p;
   U.at(iCell, PrimHydroMCState::VarIndex::Iu) = u.u;
   U.at(iCell, PrimHydroMCState::VarIndex::Iv) = u.v;
@@ -262,6 +274,7 @@ template <int ndim, typename Array_t, typename CellIndex >
 KOKKOS_INLINE_FUNCTION
 void setConservativeState( const Array_t& U, const CellIndex& iCell, ConsHydroMCState u) {
   U.at(iCell, ConsHydroMCState::VarIndex::Irho) = u.rho;
+  U.at(iCell, ConsHydroMCState::VarIndex::Irho_old) = u.rho_old;
   U.at(iCell, ConsHydroMCState::VarIndex::Ie_tot) = u.e_tot;
   U.at(iCell, ConsHydroMCState::VarIndex::Irho_vx) = u.rho_u;
   U.at(iCell, ConsHydroMCState::VarIndex::Irho_vy) = u.rho_v;
@@ -282,6 +295,7 @@ template <int ndim, typename Array_t, typename CellIndex >
 KOKKOS_INLINE_FUNCTION
 void atomic_add_ConservativeState( const Array_t& U, const CellIndex& iCell, ConsHydroMCState u) {
   Kokkos::atomic_add(&U.at(iCell, ConsHydroMCState::VarIndex::Irho), u.rho);
+  Kokkos::atomic_add(&U.at(iCell, ConsHydroMCState::VarIndex::Irho_old), u.rho_old);
   Kokkos::atomic_add(&U.at(iCell, ConsHydroMCState::VarIndex::Ie_tot), u.e_tot);
   Kokkos::atomic_add(&U.at(iCell, ConsHydroMCState::VarIndex::Irho_vx), u.rho_u);
   Kokkos::atomic_add(&U.at(iCell, ConsHydroMCState::VarIndex::Irho_vy), u.rho_v);
@@ -322,7 +336,8 @@ PrimHydroMCState consToPrim(const ConsHydroMCState &U, real_t gamma0) {
           U.flux_y_l,
           U.flux_y_r,
           (ndim == 3 ? U.flux_z_l : 0.0),
-          (ndim == 3 ? U.flux_z_r : 0.0)};
+          (ndim == 3 ? U.flux_z_r : 0.0),
+          U.rho_old};
 }
 
 /**
@@ -349,7 +364,8 @@ ConsHydroMCState primToCons(const PrimHydroMCState &Q, real_t gamma0) {
             Q.flux_y_l,
             Q.flux_y_r,
             (ndim == 3 ? Q.flux_z_l : 0.0),
-            (ndim == 3 ? Q.flux_z_r : 0.0)};
+            (ndim == 3 ? Q.flux_z_r : 0.0),
+            Q.rho_old};
 }
 
 /**
@@ -368,9 +384,9 @@ PrimHydroMCState swapComponents(const PrimHydroMCState &q, ComponentIndex3D comp
     case IX:
       return q;
     case IY:
-      return PrimHydroMCState{q.rho, q.p, q.v, q.u, q.w, q.flux_y_l, q.flux_y_r, q.flux_x_l, q.flux_x_r, q.flux_z_l, q.flux_z_r};
+      return PrimHydroMCState{q.rho, q.p, q.v, q.u, q.w, q.flux_y_l, q.flux_y_r, q.flux_x_l, q.flux_x_r, q.flux_z_l, q.flux_z_r, q.rho_old};
     case IZ:
-      return PrimHydroMCState{q.rho, q.p, q.w, q.v, q.u, q.flux_z_l, q.flux_z_r, q.flux_y_l, q.flux_y_r, q.flux_x_l, q.flux_x_r};
+      return PrimHydroMCState{q.rho, q.p, q.w, q.v, q.u, q.flux_z_l, q.flux_z_r, q.flux_y_l, q.flux_y_r, q.flux_x_l, q.flux_x_r, q.rho_old};
     default:
       DYABLO_ASSERT_KOKKOS_DEBUG(false, "invalid component");
       return PrimHydroMCState{};
@@ -393,9 +409,9 @@ ConsHydroMCState swapComponents(const ConsHydroMCState &u, ComponentIndex3D comp
     case IX:
       return u;
     case IY:
-      return ConsHydroMCState{u.rho, u.e_tot, u.rho_v, u.rho_u, u.rho_w, u.flux_y_l, u.flux_y_r, u.flux_x_l, u.flux_x_r, u.flux_z_l, u.flux_z_r};
+      return ConsHydroMCState{u.rho, u.e_tot, u.rho_v, u.rho_u, u.rho_w, u.flux_y_l, u.flux_y_r, u.flux_x_l, u.flux_x_r, u.flux_z_l, u.flux_z_r, u.rho_old};
     case IZ:
-      return ConsHydroMCState{u.rho, u.e_tot, u.rho_w, u.rho_v, u.rho_u, u.flux_z_l, u.flux_z_r, u.flux_y_l, u.flux_y_r, u.flux_x_l, u.flux_x_r};
+      return ConsHydroMCState{u.rho, u.e_tot, u.rho_w, u.rho_v, u.rho_u, u.flux_z_l, u.flux_z_r, u.flux_y_l, u.flux_y_r, u.flux_x_l, u.flux_x_r, u.rho_old};
     default:
       DYABLO_ASSERT_KOKKOS_DEBUG(false, "invalid component");
       return ConsHydroMCState{};

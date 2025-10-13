@@ -126,9 +126,15 @@ struct AnalyticalFormula_blast : public AnalyticalFormula_base{
 
         if (r2 < radius*radius) {
             res.rho = blast_density_in;
+            if constexpr (std::is_same_v<State, HydroMCState>) {
+                res.rho_old = blast_density_in;
+            }
             res.e_tot = blast_pressure_in/(gamma0-1.0);;
         } else {
             res.rho = blast_density_out;
+            if constexpr (std::is_same_v<State, HydroMCState>) {
+                res.rho_old = blast_density_out;
+            }
             res.e_tot = blast_pressure_out/(gamma0-1.0);
         }
 
