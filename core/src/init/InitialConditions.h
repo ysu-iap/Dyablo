@@ -17,9 +17,9 @@ class InitialConditions_tiled_restart;
 template<typename State> class AnalyticalFormula_blast;
 class AnalyticalFormula_implode;
 class AnalyticalFormula_riemann2d;
-class AnalyticalFormula_KelvinHelmholtz;
+template<typename State> class AnalyticalFormula_KelvinHelmholtz;
 class AnalyticalFormula_RayleighTaylor;
-class AnalyticalFormula_sod;
+template<typename State> class AnalyticalFormula_sod;
 class AnalyticalFormula_Zeldovitch_pancake;
 class AnalyticalFormula_double_mach;
 
@@ -32,6 +32,7 @@ class AnalyticalFormula_MHD_RayleighTaylor;
 // Particles
 class InitialConditions_simple_particles;
 class InitialConditions_particle_grid;
+class InitialConditions_particle_grid_KH_2D;
 
 // Cosmology
 class InitialConditions_grafic_fields;
@@ -56,12 +57,14 @@ bool dyablo::InitialConditionsFactory::init()
 
   DECLARE_REGISTERED( dyablo::InitialConditions_simple_particles );
   DECLARE_REGISTERED( dyablo::InitialConditions_particle_grid );
+  DECLARE_REGISTERED( dyablo::InitialConditions_particle_grid_KH_2D );
   
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_blast<dyablo::HydroState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_blast<dyablo::HydroMCState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_implode> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_riemann2d> );
-  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz<dyablo::HydroState>> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz<dyablo::HydroMCState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_RayleighTaylor> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_double_mach> );
 
@@ -72,7 +75,8 @@ bool dyablo::InitialConditionsFactory::init()
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_MHD_rotor<dyablo::MHDState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_MHD_rotor<dyablo::GLMMHDState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_MHD_RayleighTaylor> );
-  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod<dyablo::HydroState>> );
+  DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod<dyablo::HydroMCState>> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_Zeldovitch_pancake> );
   DECLARE_REGISTERED( dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_rad_blast> );
 

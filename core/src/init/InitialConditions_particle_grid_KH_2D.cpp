@@ -18,7 +18,7 @@ namespace dyablo{
  * - dt_perturb : dt used to displace particles (using particle velocities)
  * 
 **/
-class InitialConditions_particle_grid : public InitialConditions{ 
+class InitialConditions_particle_grid_KH_2D : public InitialConditions{ 
     ForeachCell& foreach_cell;
     ForeachParticle foreach_particle;
     uint32_t nx, ny, nz;
@@ -31,7 +31,7 @@ class InitialConditions_particle_grid : public InitialConditions{
     int dim; // 2 or 3
 
 public:
-  InitialConditions_particle_grid(
+  InitialConditions_particle_grid_KH_2D(
         ConfigMap& configMap, 
         ForeachCell& foreach_cell,  
         Timers& timers )
@@ -134,7 +134,7 @@ public:
 
     {
       UserData::ParticleArray_t P = U.getParticleArray( particle_array_name );
-      foreach_particle.foreach_particle("InitialConditions_particle_grid::init_pos", P,
+      foreach_particle.foreach_particle("InitialConditions_particle_grid_KH_2D::init_pos", P,
       KOKKOS_LAMBDA (ParticleData::ParticleIndex iPart) 
       {
         uint64_t ipart_global = ipart_global_begin + iPart;
@@ -192,7 +192,7 @@ public:
 
       ForeachCell::CellMetaData cells = foreach_cell.getCellMetaData();
 
-      foreach_particle.foreach_particle("InitialConditions_particle_grid::init_attributes(3D)", P,
+      foreach_particle.foreach_particle("InitialConditions_particle_grid_KH_2D::init_attributes(3D)", P,
       KOKKOS_LAMBDA (ParticleData::ParticleIndex iPart) 
       {
         ForeachCell::CellMetaData::pos_t pos = {P.pos(iPart, IX), P.pos(iPart, IY), P.pos(iPart, IZ)};
@@ -237,7 +237,7 @@ public:
 
       ForeachCell::CellMetaData cells = foreach_cell.getCellMetaData();
 
-      foreach_particle.foreach_particle("InitialConditions_particle_grid::init_attributes(2D)", P,
+      foreach_particle.foreach_particle("InitialConditions_particle_grid_KH_2D::init_attributes(2D)", P,
       KOKKOS_LAMBDA (ParticleData::ParticleIndex iPart) 
       {
         ForeachCell::CellMetaData::pos_t pos = {P.pos(iPart, IX), P.pos(iPart, IY)};
@@ -270,6 +270,6 @@ public:
 
 
 FACTORY_REGISTER(dyablo::InitialConditionsFactory, 
-                 dyablo::InitialConditions_particle_grid, 
-                 "particle_grid");
+                 dyablo::InitialConditions_particle_grid_KH_2D, 
+                 "particle_grid_KH_2D");
                  

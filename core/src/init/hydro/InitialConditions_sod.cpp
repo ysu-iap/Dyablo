@@ -8,7 +8,10 @@ namespace dyablo{
  * Based on Liska, Wendroff "Comparison of Several Difference Schemes on 1D and 2D Test Problems 
  * for the Euler Equations", 2003, SIAM journal on Scientific Computing
  **/
+template <typename State>
 struct AnalyticalFormula_sod : public AnalyticalFormula_base{
+  using ConsState = typename State::ConsState;
+  using PrimState = typename State::PrimState;
   const real_t gamma0;
 
   const real_t x0; // Initial position of the interface
@@ -38,13 +41,16 @@ struct AnalyticalFormula_sod : public AnalyticalFormula_base{
   }
 
   KOKKOS_INLINE_FUNCTION
-  ConsHydroState value( real_t x, real_t y, real_t z, real_t dx, real_t dy, real_t dz ) const
+  ConsState value( real_t x, real_t y, real_t z, real_t dx, real_t dy, real_t dz ) const
   {
     real_t p = (x < this->x0) ? pL : pR;
     real_t rho = (x < this->x0) ? rhoL : rhoR;
 
-    ConsHydroState res{};
+    ConsState res{};
     res.rho   = rho;
+    if constexpr (std::is_same_v<State, HydroMCState>) {
+      res.rho_old = rho;
+    }
     res.e_tot = p / (gamma0-1.0);
 
     return res; 
@@ -53,6 +59,9 @@ struct AnalyticalFormula_sod : public AnalyticalFormula_base{
 } // namespace dyablo
 
 FACTORY_REGISTER(dyablo::InitialConditionsFactory, 
-                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod>, 
+                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod<dyablo::HydroState>>, 
                  "sod");
 
+FACTORY_REGISTER(dyablo::InitialConditionsFactory, 
+                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_sod<dyablo::HydroMCState>>, 
+                 "sod_MC");

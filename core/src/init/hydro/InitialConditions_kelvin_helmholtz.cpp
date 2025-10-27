@@ -8,8 +8,10 @@ namespace dyablo{
  * Based on Lecoanet et al "A validated non-linear kelvin-helmholtz benchmark for numerical 
  * hydrodynamics", 2016, Monthly Notices of the Royal Astronomy Society
  **/
+template <typename State>
 struct AnalyticalFormula_KelvinHelmholtz : public AnalyticalFormula_base{
-  
+  using ConsState = typename State::ConsState;
+  using PrimState = typename State::PrimState;
   const int    ndim;
   const real_t gamma0;
   const real_t smallr;
@@ -59,9 +61,9 @@ struct AnalyticalFormula_KelvinHelmholtz : public AnalyticalFormula_base{
   }
 
   KOKKOS_INLINE_FUNCTION
-  ConsHydroState value( real_t x, real_t y, real_t z, real_t dx, real_t dy, real_t dz ) const
+  ConsState value( real_t x, real_t y, real_t z, real_t dx, real_t dy, real_t dz ) const
   {
-    ConsHydroState res;
+    ConsState res;
     const real_t q1 = tanh((y-z1)/a);
     const real_t q2 = tanh((y-z2)/a);
     const real_t s2 = sigma*sigma;
@@ -73,6 +75,9 @@ struct AnalyticalFormula_KelvinHelmholtz : public AnalyticalFormula_base{
     const real_t Ek  = rho*0.5*(u*u+v*v);
 
     res.rho   = rho;
+    if constexpr (std::is_same_v<State, HydroMCState>) {
+      res.rho_old = rho;
+    }
     res.rho_u = rho*u;
     res.rho_v = rho*v;
     res.e_tot = Ek + P0 / (gamma0-1.0);
@@ -83,6 +88,9 @@ struct AnalyticalFormula_KelvinHelmholtz : public AnalyticalFormula_base{
 } // namespace dyablo
 
 FACTORY_REGISTER(dyablo::InitialConditionsFactory, 
-                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz>, 
+                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz<dyablo::HydroState>>, 
                  "kelvin_helmholtz");
 
+FACTORY_REGISTER(dyablo::InitialConditionsFactory, 
+                 dyablo::InitialConditions_analytical<dyablo::AnalyticalFormula_KelvinHelmholtz<dyablo::HydroMCState>>, 
+                 "kelvin_helmholtz_MC");

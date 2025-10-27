@@ -533,44 +533,14 @@ private:
   {
     ConsState flux = riemann_hllc(qleft, qright);
 
-    
-
     switch (fdir) {
-      case FlowDirection::LEFT:  flux.flux_x_l = flux.rho; break;
+      case FlowDirection::LEFT:   flux.flux_x_l = flux.rho; break;
       case FlowDirection::RIGHT:  flux.flux_x_r = flux.rho; break;
-      default:                   throw std::runtime_error(std::string("The flow doesn't have three directions."));
+      default: DYABLO_ASSERT_KOKKOS_DEBUG(1, "The flow doesn't have three directions.");
     }
-
-    // switch (fdir) {
-    //   case FlowDirection::LEFT:
-    //     std::cout << "je suis ici (left)  avec rho " << flux.rho << " et flux_x_l=" << flux.flux_x_l << " et flux_x_r" << flux.flux_x_r << std::endl;
-    //     break;
-    //   case FlowDirection::RIGHT:
-    //     std::cout << "je suis ici (right) avec rho " << flux.rho << " et flux_x_l=" << flux.flux_x_l << " et flux_x_r" << flux.flux_x_r << std::endl;
-    //     break;
-    //   default:
-    //     std::cerr << "something bizarre happen" << std::endl;
-    //     break;
-    // }
-    // if ((flux.flux_x_l) || (flux.flux_x_r))
-    //   switch (fdir) {
-    //     case FlowDirection::LEFT:
-    //       std::cout << "je suis ici (left)  avec rho " << flux.rho << " et flux_x_l=" << flux.flux_x_l << " et flux_x_r" << flux.flux_x_r << std::endl;
-    //       break;
-    //     case FlowDirection::RIGHT:
-    //       std::cout << "je suis ici (right) avec rho " << flux.rho << " et flux_x_l=" << flux.flux_x_l << " et flux_x_r" << flux.flux_x_r << std::endl;
-    //       break;
-    //     default:
-    //       std::cerr << "something bizarre happen" << std::endl;
-    //       break;
-
-    //   }
-      
-
 
     return flux;
   }
-
 };
 
 } // namespace dyablo

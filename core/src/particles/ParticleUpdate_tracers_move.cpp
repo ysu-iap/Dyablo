@@ -12,7 +12,16 @@ public:
           Timers& timers) 
   : foreach_cell(foreach_cell),
     foreach_particle(foreach_cell.get_amr_mesh(), configMap),
-    timers(timers)
+    timers(timers),
+    data{
+      .xmin = configMap.getValue<real_t>("mesh", "xmin", 0.0),
+      .xmax = configMap.getValue<real_t>("mesh", "xmax", 1.0),      
+      .ymin = configMap.getValue<real_t>("mesh", "ymin", 0.0),
+      .ymax = configMap.getValue<real_t>("mesh", "ymax", 1.0),
+      .zmin = configMap.getValue<real_t>("mesh", "zmin", 0.0),
+      .zmax = configMap.getValue<real_t>("mesh", "zmax", 1.0),
+      .ndim = configMap.getValue<int>("mesh", "ndim", 3),
+    }
   {}
 
   ~ParticleUpdate_tracers_move() {}
@@ -41,6 +50,12 @@ public:
       P.pos(iPart, IX) += dt * Uin.at( iCell, IVX )/rho;
       P.pos(iPart, IY) += dt * Uin.at( iCell, IVY )/rho;
       P.pos(iPart, IZ) += dt * Uin.at( iCell, IVZ )/rho;
+      
+      
+      const Data&d = this->data;
+      P.pos(iPart, IX) = fmod( (P.pos(iPart, IX) - d.xmin) + (d.xmax-d.xmin) , d.xmax-d.xmin) + d.xmin;
+      P.pos(iPart, IY) = fmod( (P.pos(iPart, IY) - d.ymin) + (d.ymax-d.ymin) , d.ymax-d.ymin) + d.ymin;
+      P.pos(iPart, IZ) = fmod( (P.pos(iPart, IZ) - d.zmin) + (d.zmax-d.zmin) , d.zmax-d.zmin) + d.zmin;
     });   
 
     timers.get("ParticleUpdate_tracers_move").stop();
@@ -49,7 +64,12 @@ public:
 private:
   ForeachCell& foreach_cell;
   ForeachParticle foreach_particle;
-  Timers& timers;  
+  Timers& timers;
+public:
+  struct Data {
+    real_t xmin,xmax,ymin,ymax,zmin,zmax;
+    int ndim;
+  } data;
 };
 
 } // namespace dyablo

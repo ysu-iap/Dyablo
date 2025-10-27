@@ -71,7 +71,7 @@ public:
 private:
   ForeachCell& foreach_cell;
   ForeachParticle foreach_particle;
-  Timers& timers;  
+  Timers& timers;
 public: //Needed for nvcc
   struct Data {
     real_t xmin,xmax,ymin,ymax,zmin,zmax;
