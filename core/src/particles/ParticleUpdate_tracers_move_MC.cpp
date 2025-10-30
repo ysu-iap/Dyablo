@@ -1,6 +1,8 @@
 #include "ParticleUpdate_base.h"
 #include "ForeachParticle.h"
 #include <Kokkos_Random.hpp>
+#include "foreach_cell/ForeachCell_utils.h"
+
 namespace dyablo {
 
 class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
@@ -28,7 +30,8 @@ class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
       .ndim = configMap.getValue<int>("mesh", "ndim", 3),
     },
     seed(12345),
-    rand_pool(seed*GlobalMpiSession::get_comm_world().MPI_Comm_rank()+1)
+    rand_pool(seed*GlobalMpiSession::get_comm_world().MPI_Comm_rank()+1),
+    level_max(configMap.getValue<uint32_t>("amr", "level_max", 10))
   {}
 
   ~ParticleUpdate_tracers_move_MC() {}
@@ -59,8 +62,14 @@ class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
     {
       RNGType rand_gen = pool.get_state();
 
-      double r1 = rand_gen.drand(0., 1.);
-      double r2 = rand_gen.drand(0., 1.);
+      double r1 = rand_gen.drand(0.,  1.);
+      double r2 = rand_gen.drand(0.,  1.);
+      double r3 = rand_gen.drand(-1., 1.);
+      double r4 = rand_gen.drand(-1., 1.);
+      double r5 = rand_gen.drand(-1., 1.);
+      // double r3 = 0;
+      // double r4 = 0;
+      // double r5 = 0;
 
       pool.free_state(rand_gen);
 
@@ -71,11 +80,6 @@ class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
       ForeachCell::CellIndex iCell = cells.getCellFromPos( {x,y,z} );
 
       real_t rho = Uin.at( iCell, ID );
-
-      // std::cout << rho << std::endl;
-      // P.pos(iPart, IX) += dt * Uin.at( iCell, IVX )/rho;
-      // P.pos(iPart, IY) += dt * Uin.at( iCell, IVY )/rho;
-      // P.pos(iPart, IZ) += dt * Uin.at( iCell, IVZ )/rho;
 
       // std::cout << "Je suis là 2" << std::endl;
 
@@ -104,8 +108,6 @@ class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
 
       DYABLO_ASSERT_KOKKOS_DEBUG(p_out >= (real_t)0 && p_out <= (real_t)1,
                                  "p_out must be in [0,1]");
-      if (p_out < (real_t)0) p_out = (real_t)0;
-      if (p_out > (real_t)1) p_out = (real_t)1;
 
       if (r1 >= p_out) return;
 
@@ -133,15 +135,44 @@ class ParticleUpdate_tracers_move_MC : public ParticleUpdate {
       ForeachCell::CellIndex::offset_t off{0,0,0};
       off[faces[chosen].dir] = faces[chosen].sign;
 
+      // auto szC = cells.getCellSize(iCell);
+      // auto ctC = cells.getCellCenter(iCell);
+
+      // auto shape = Uin.getShape();
+      // ForeachCell::CellIndex iNeigh = iCell.getNeighbor_ghost(off, shape);
+
+      // int lr_diff = iNeigh.level_diff();
+
+      // if (iNeigh.level_diff() < 0) {
+      //   int count = 0;
+      //   ForeachCell::CellIndex chosen_sn;
+      //   foreach_smaller_neighbor<2>(iNeigh, off, shape, [&](const ForeachCell::CellIndex& iCell_sn) {
+      //     if (rand_gen.drand() < (1.0 / (++count))) {
+      //       chosen_sn = iCell_sn;
+      //     }
+      //   });
+      //   auto szN = cells.getCellSize(chosen_sn);
+      //   auto ctN = cells.getCellCenter(chosen_sn);
+      //   P.pos(iPart, IX) = ctN[IX] + szN[IX]*0.5*r3;
+      //   P.pos(iPart, IY) = ctN[IY] + szN[IY]*0.5*r4;
+      //   P.pos(iPart, IZ) = d.ndim == 3 ? ctN[IZ] + szN[IZ]*0.5*r5 : 0;
+      // }
+      // else {
+      //   auto szN = iNeigh.is_valid() ? cells.getCellSize(iNeigh) : szC;
+      //   auto ctN = iNeigh.is_valid() ? cells.getCellCenter(iNeigh) : ctC;
+      //   P.pos(iPart, IX) = ctN[IX] + szN[IX]*0.5*r3;
+      //   P.pos(iPart, IY) = ctN[IY] + szN[IY]*0.5*r4;
+      //   P.pos(iPart, IZ) = d.ndim == 3 ? ctN[IZ] + szN[IZ]*0.5*r5 : 0;
+      // }
+
       P.pos(iPart, IX) += Ax * off[0];
       P.pos(iPart, IY) += Ay * off[1];
       P.pos(iPart, IZ) += Az * off[2];
-      
-      P.pos(iPart, IX) = fmod( (P.pos(iPart, IX) - d.xmin) + (d.xmax-d.xmin) , d.xmax-d.xmin) + d.xmin;
-      P.pos(iPart, IY) = fmod( (P.pos(iPart, IY) - d.ymin) + (d.ymax-d.ymin) , d.ymax-d.ymin) + d.ymin;
-      P.pos(iPart, IZ) = fmod( (P.pos(iPart, IZ) - d.zmin) + (d.zmax-d.zmin) , d.zmax-d.zmin) + d.zmin;
+      P.pos(iPart, IX) = fmod( (P.pos(iPart, IX) - d.xmin) + (d.xmax-d.xmin), d.xmax-d.xmin) + d.xmin;
+      P.pos(iPart, IY) = fmod( (P.pos(iPart, IY) - d.ymin) + (d.ymax-d.ymin), d.ymax-d.ymin) + d.ymin;
+      P.pos(iPart, IZ) = fmod( (P.pos(iPart, IZ) - d.zmin) + (d.zmax-d.zmin), d.zmax-d.zmin) + d.zmin;
 
-    });   
+    });
 
     timers.get("ParticleUpdate_tracers_move_MC").stop();
   }
@@ -150,6 +181,7 @@ private:
   ForeachCell& foreach_cell;
   ForeachParticle foreach_particle;
   Timers& timers;
+  uint32_t level_max;
 public:
   struct Data {
     real_t xmin,xmax,ymin,ymax,zmin,zmax;
