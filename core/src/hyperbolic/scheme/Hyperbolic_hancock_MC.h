@@ -286,6 +286,20 @@ public:
                 if (Ldiff == 1)
                 {
                   ConsState du_n = fluxL * - dim_fac * dt / size_L[dir];
+                  // Right flux from big cell is left flux from small one
+                  if (dir == IX) {
+                    real_t tmp = du_n.flux_x_l;
+                    du_n.flux_x_l = du_n.flux_x_r;
+                    du_n.flux_x_r = tmp;
+                    du_n.flux_y_l = 0;
+                    du_n.flux_y_r = 0;
+                  } else if (dir == IY) {
+                    real_t tmp = du_n.flux_y_l;
+                    du_n.flux_x_l = 0;
+                    du_n.flux_x_r = 0;
+                    du_n.flux_y_l = du_n.flux_y_r;
+                    du_n.flux_y_r = tmp;
+                  }
                   policy.atomic_addConsState(Uout, iCell_m_U, du_n);
                 }
               } // If smaller we skip
@@ -325,6 +339,21 @@ public:
                 if (Rdiff == 1)
                 {
                   ConsState du_n = fluxR * dim_fac * dt / size_R[dir];
+                  // Left flux from big cell is right flux from small one
+                  if (dir == IX) {
+                    real_t tmp = du_n.flux_x_l;
+                    du_n.flux_x_l = du_n.flux_x_r;
+                    du_n.flux_x_r = tmp;
+                    du_n.flux_y_l = 0;
+                    du_n.flux_y_r = 0;
+                  } else if (dir == IY) {
+                    real_t tmp = du_n.flux_y_l;
+                    du_n.flux_x_l = 0;
+                    du_n.flux_x_r = 0;
+                    du_n.flux_y_l = du_n.flux_y_r;
+                    du_n.flux_y_r = tmp;
+                  }
+
                   policy.atomic_addConsState(Uout, iCell_p_U, du_n);
                 }          
               }

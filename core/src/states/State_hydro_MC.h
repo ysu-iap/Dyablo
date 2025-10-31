@@ -111,9 +111,9 @@ struct PrimHydroMCState {
               {"flux_x_l", VarIndex::Iflux_x_l},
               {"flux_x_r", VarIndex::Iflux_x_r},
               {"flux_y_l", VarIndex::Iflux_y_l},
-              {"flux_y_r", VarIndex::Iflux_y_l},
+              {"flux_y_r", VarIndex::Iflux_y_r},
               {"flux_z_l", VarIndex::Iflux_z_l},
-              {"flux_z_r", VarIndex::Iflux_z_l},
+              {"flux_z_r", VarIndex::Iflux_z_r},
               {"rho_old",  VarIndex::Irho_old} };
   }
 
